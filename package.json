@@ -8,7 +8,7 @@
 		"lint:js": "xo",
 		"test": "run-p lint:* build",
 		"watch": "parcel watch --no-hmr",
-		"ext": ""
+		"run:brave": "web-ext run -t chromium --chromium-binary=\"C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe\"     "
 	},
 	"browserslist": [
 		"last 1 Chrome version",
@@ -56,7 +56,7 @@
 		"sourceDir": "distribution",
 		"run": {
 			"startUrl": [
-				"https://github.com/fregante/browser-extension-template"
+				"https://www.myanonamouse.net/t/1099147"
 			]
 		}
 	}

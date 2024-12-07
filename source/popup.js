@@ -1,58 +1,47 @@
-// Initialize form with saved values
-async function initializeForm() {
-	console.log('initializing... form');
+const browserAPI = chrome || browser;
 
-	const options = await optionsStorage.getAll();
-	const form = document.getElementById('options-form');
+console.log('loading pop js')
 
-	// Set form values from storage
-	// Object.entries(options).forEach(([key, value]) => {
-	// 	const input = form.querySelector(`[name="${key}"]`);
-	// 	if (input) {
-	// 		input.value = value;
-	// 	}
-	// });
+document.addEventListener('DOMContentLoaded', async () => {
+	console.log('Document loaded')
 
-	// Handle form submission
-	form.addEventListener('submit', async (event) => {
-		event.preventDefault();
+	const settings = await browserAPI.storage.sync.get(['gouda_baseurl', 'gouda_apikey']);
 
-		console.log('Submitting value')
+	console.log('loaded settings');
+	console.log(settings.gouda_baseurl);
 
-		// Get all form values
-		// const formData = new FormData(form);
-		// const newOptions = {};
-		// for (const [key, value] of formData.entries()) {
-		// 	newOptions[key] = value;
-		// }
+	// Set input values
+	document.getElementById('baseUrl').value = settings.gouda_baseurl || '';
+	document.getElementById('apikey').value = settings.gouda_apikey || '';
 
-		// test url and connection
-		// fetch(`${newOptions.baseUrl}/auth/test`, {
-		// 	method: 'GET',
-		// 	headers: {
-		// 		'Content-Type': 'application/json',
-		// 		Authorization: newOptions.apikey
-		// 	}
-		// }).then(async response => {
-		// 	// Save options
-		// 	await optionsStorage.set(newOptions);
-		//
-		// 	// Show save confirmation
-		// 	const button = form.querySelector('button');
-		// 	const originalText = button.textContent;
-		// 	button.textContent = 'Saved!';
-		// 	button.style.backgroundColor = '#28a745';
-		//
-		// 	setTimeout(() => {
-		// 		button.textContent = originalText;
-		// 		button.style.backgroundColor = '#4CAF50';
-		// 	}, 1500);
-		// }).catch(error => {
-		// 	console.log(error)
-		// 	alert(error)
-		// });
+	// Save settings when button is clicked
+	document.getElementById('save').addEventListener('mousedown', async () => {
+		console.log('clicking save')
 
+		const baseUrl = document.getElementById('baseUrl').value;
+		const apikey = document.getElementById('apikey').value;
+
+		console.debug(`Checking url ${baseUrl} with apikey ${apikey}`);
+
+		try {
+			await fetch(`${baseUrl}/auth/test`, {
+				method: 'GET',
+				headers: {
+					Authorization: apikey
+				}
+			})
+
+			await browserAPI.storage.sync.set({
+				'gouda_baseurl': baseUrl,
+				'gouda_apikey': apikey
+			});
+
+			// Optional: Show save confirmation
+			alert('Settings saved!');
+
+		} catch (e) {
+			console.log(e)
+			alert(e)
+		}
 	});
-}
-
-initializeForm();
+});

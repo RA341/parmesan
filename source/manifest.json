@@ -12,12 +12,6 @@
 			"strict_min_version": "109.0"
 		}
 	},
-	"action": {
-		"default_popup": "popup.html",
-		"default_icon": {
-			"128": "icon.png"
-		}
-	},
 	"icons": {
 		"128": "icon.png"
 	},
@@ -27,22 +21,21 @@
 	"host_permissions": [
 		"*://*.myanonamouse.net/*"
 	],
+	"action": {
+		"default_popup": "popup.html",
+		"default_icon": {
+			"128": "icon.png"
+		}
+	},
 	"content_scripts": [
 		{
 			"matches": [
 				"*://*.myanonamouse.net/t/*"
 			],
 			"js": [
-				"options-storage.js",
 				"content.js"
-			],
-			"css": [
-				"content.css"
 			],
 			"run_at": "document_idle"
 		}
-	],
-	"options_ui": {
-		"page": "options.html"
-	}
+	]
 }

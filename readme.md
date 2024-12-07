@@ -14,6 +14,10 @@ Screenshot of extension options:
 
 ![Sample extension options output](media/previewer.png)
 
+## Troubleshooting
+
+If a send to gouda fils please disable your adblock as it may block localhost request or use a real domain name
+
 ## Features
 
 - Uses Manifest v3

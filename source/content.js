@@ -1,42 +1,36 @@
-import optionsStorage from './options-storage.js';
-
 console.log('💈 Content script loaded for', chrome.runtime.getManifest().name);
 
-function createClickHandler(apikey, url) {
-	return function (event) {
-		event.preventDefault();
-		console.log('Sending ');
+const browserAPI = chrome || browser;
 
-		const author = getAuthorText() ?? ""
-		const bookName = getTitleText() ?? ""
-		const link = getDownloadLink() ?? ""
-		const book_url = window.location.href
+async function sendInfo(apikey, url) {
+	console.log('Sending ');
+	const author = getAuthorText() ?? ""
+	const bookName = getTitleText() ?? ""
+	const link = getDownloadLink() ?? ""
+	const book_url = window.location.href
 
-		const body = JSON.stringify({
-			file_link: link,
-			author: author,
-			book: bookName,
-			category: "iso",
-			mam_url: book_url
-		})
+	const body = JSON.stringify({
+		file_link: link,
+		author: author,
+		book: bookName,
+		category: "iso",
+		mam_url: book_url
+	})
 
-
-		const options = {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: apikey
-			},
-			body: body
-		};
-
-		fetch(`${url}/torrent/addTorrent`, options)
-			.then(response => response.json())
-			.then(response => console.log(response))
-			.catch(err => console.error(err));
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: apikey
+		},
+		body: body
 	};
-}
 
+	const resp = await fetch(`${url}/torrent/addTorrent`, options)
+	if (resp.status > 400) {
+		throw new Error(`Failed to call api. Status:${resp.statusText}, message: ${resp.statusText}`);
+	}
+}
 
 function getAuthorText() {
 	const authorElement = document.querySelector('.torDetRight.torAuthors a');
@@ -65,13 +59,52 @@ function getDownloadLink() {
 	return null;
 }
 
+function updateButtonState(button, state, duration = 2000) {
+	// Store the previous state
+	const previousState = {
+		text: button.textContent,
+		backgroundColor: button.style.backgroundColor,
+		color: button.style.color
+	};
+
+	// Update to new state
+	button.textContent = state.text;
+	button.style.backgroundColor = state.backgroundColor;
+	button.style.color = state.color;
+
+	// Reset to previous state after duration
+	setTimeout(() => {
+		button.textContent = previousState.text;
+		button.style.backgroundColor = previousState.backgroundColor;
+		button.style.color = previousState.color;
+	}, duration);
+}
+
+const buttonStates = {
+	default: {
+		text: 'Send to gouda',
+		backgroundColor: 'green',
+		color: 'white'
+	},
+	notSetup: {
+		text: 'Extension is not setup',
+		backgroundColor: 'grey',
+		color: 'white'
+	},
+	success: {
+		text: 'Success!',
+		backgroundColor: '#4CAF50',
+		color: 'white'
+	},
+	failure: {
+		text: 'Failed!',
+		backgroundColor: '#f44336',
+		color: 'white'
+	}
+};
+
 async function init() {
-	const options = await optionsStorage.getAll();
-
-
-	// const color = `rgb(${options.colorRed}, ${options.colorGreen},${options.colorBlue})`;
-	// const text = options.text;
-
+	const settings = await browserAPI.storage.sync.get(['gouda_baseurl', 'gouda_apikey']);
 
 	const downloadDiv = document.createElement('div');
 	downloadDiv.id = 'download';
@@ -85,20 +118,30 @@ async function init() {
 
 	const downloadLink = document.createElement('a');
 	downloadLink.id = 'tddl';
+	downloadLink.title = 'Gouda'
 	downloadLink.className = 'torFormButton';
 	downloadLink.title = 'Send to gouda';
-	downloadLink.textContent = 'Extension is not setup';
+	downloadLink.textContent = 'Parmesan is not setup';
 	downloadLink.style.backgroundColor = 'grey';  // Only the button is green
 	downloadLink.style.color = 'white';  // White text for contra
 
-	const key = options.apikey;
-	const baseUrl = options.baseUrl;
-
-	if (baseUrl && key) {
+	if (settings.gouda_baseurl && settings.gouda_apikey) {
 		downloadLink.textContent = 'Send to gouda';
 		downloadLink.style.backgroundColor = 'green';  // Only the button is green
 		downloadLink.style.color = 'white';  // White text for contra
-		downloadLink.onclick = createClickHandler(key, baseUrl);
+		downloadLink.onclick = async (ev) => {
+			try {
+				ev.preventDefault();
+				await sendInfo(settings.gouda_apikey, settings.gouda_baseurl);
+				updateButtonState(downloadLink, buttonStates.success);
+			} catch (error) {
+				console.log(error)
+				alert(`Failed to send to gouda, check your apikey and url in settings: ${error}`)
+				updateButtonState(downloadLink, buttonStates.failure);
+			}
+		};
+	} else {
+		console.log('Could not find base url or apikey');
 	}
 
 	// Assemble the elements
