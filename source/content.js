@@ -8,12 +8,15 @@ async function sendInfo(apikey, url) {
 	const bookName = getTitleText() ?? ""
 	const link = getDownloadLink() ?? ""
 	const book_url = window.location.href
+	const cat = document.getElementById('gouda_cat').value;
+
+	console.log(`Category: ${cat} - Author: ${author} - Book: ${bookName}`);
 
 	const body = JSON.stringify({
 		file_link: link,
 		author: author,
 		book: bookName,
-		category: "iso",
+		category: cat,
 		mam_url: book_url
 	})
 
@@ -27,8 +30,8 @@ async function sendInfo(apikey, url) {
 	};
 
 	const resp = await fetch(`${url}/torrent/addTorrent`, options)
-	if (resp.status > 400) {
-		throw new Error(`Failed to call api. Status:${resp.statusText}, message: ${resp.statusText}`);
+	if (resp.status > 399) {
+		throw new Error(`Failed to call api. Status:${resp.statusText}, message: ${JSON.stringify(await resp.json())}`);
 	}
 }
 
@@ -103,6 +106,57 @@ const buttonStates = {
 	}
 };
 
+async function createDropDown(baseUrl, apikey) {
+	// Create dropdown
+	const dropdown = document.createElement('select');
+	dropdown.id = 'gouda_cat'
+	dropdown.style.padding = '8px';
+	dropdown.style.borderRadius = '4px';
+
+	const options = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: apikey
+		},
+		mode: 'cors'
+	};
+	const resp = await fetch(`${baseUrl}/category/list`, options)
+	if (resp.status > 400) {
+		throw new Error(`Failed to call api. Status:${resp.statusText}, message: ${resp.statusText}`);
+	}
+
+	const cat = (await resp.json())['categories']
+
+	const defaultOption = document.createElement('option');
+	defaultOption.value = '';
+	defaultOption.textContent = 'Select option';
+	dropdown.appendChild(defaultOption);
+
+	if (resp.status > 400) {
+		console.error('Error loading options:', resp.statusText);
+		// Add error option
+		const errorOption = document.createElement('option');
+		errorOption.textContent = 'Error loading options';
+		dropdown.appendChild(errorOption);
+		return dropdown;
+	}
+
+	// Add options from API response
+	cat.forEach(item => {
+		const option = document.createElement('option');
+		option.value = item.value || item.id || item;
+		option.textContent = item.label || item.name || item;
+		dropdown.appendChild(option);
+	});
+
+	if (cat[0]) {
+		dropdown.value = cat[0];
+	}
+
+	return dropdown;
+}
+
 async function init() {
 	const settings = await browserAPI.storage.sync.get(['gouda_baseurl', 'gouda_apikey']);
 
@@ -115,6 +169,12 @@ async function init() {
 
 	const innerBottom = document.createElement('div');
 	innerBottom.className = 'torDetInnerBottom';
+
+	// Create a container for button and dropdown
+	const controlsContainer = document.createElement('div');
+	controlsContainer.style.display = 'flex';
+	controlsContainer.style.gap = '10px';
+	controlsContainer.style.alignItems = 'center';
 
 	const downloadLink = document.createElement('a');
 	downloadLink.id = 'tddl';
@@ -144,8 +204,13 @@ async function init() {
 		console.log('Could not find base url or apikey');
 	}
 
-	// Assemble the elements
-	innerBottom.appendChild(downloadLink);
+	const dropdown = await createDropDown(settings.gouda_baseurl, settings.gouda_apikey);
+	controlsContainer.appendChild(dropdown);
+// Add elements to the container
+	controlsContainer.appendChild(downloadLink);
+
+// Add the controls container to your existing structure
+	innerBottom.appendChild(controlsContainer);
 	downloadDiv.appendChild(innerTop);
 	downloadDiv.appendChild(innerBottom);
 
