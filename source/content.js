@@ -84,16 +84,6 @@ function updateButtonState(button, state, duration = 2000) {
 }
 
 const buttonStates = {
-	default: {
-		text: 'Send to gouda',
-		backgroundColor: 'green',
-		color: 'white'
-	},
-	notSetup: {
-		text: 'Extension is not setup',
-		backgroundColor: 'grey',
-		color: 'white'
-	},
 	success: {
 		text: 'Success!',
 		backgroundColor: '#4CAF50',
@@ -119,7 +109,6 @@ async function createDropDown(baseUrl, apikey) {
 			'Content-Type': 'application/json',
 			Authorization: apikey
 		},
-		mode: 'cors'
 	};
 	const resp = await fetch(`${baseUrl}/category/list`, options)
 	if (resp.status > 400) {
@@ -200,16 +189,17 @@ async function init() {
 				updateButtonState(downloadLink, buttonStates.failure);
 			}
 		};
+
+		const dropdown = await createDropDown(settings.gouda_baseurl, settings.gouda_apikey);
+		controlsContainer.appendChild(dropdown);
 	} else {
 		console.log('Could not find base url or apikey');
 	}
 
-	const dropdown = await createDropDown(settings.gouda_baseurl, settings.gouda_apikey);
-	controlsContainer.appendChild(dropdown);
-// Add elements to the container
+	// Add elements to the container
 	controlsContainer.appendChild(downloadLink);
 
-// Add the controls container to your existing structure
+	// Add the controls container to your existing structure
 	innerBottom.appendChild(controlsContainer);
 	downloadDiv.appendChild(innerTop);
 	downloadDiv.appendChild(innerBottom);
