@@ -1,6 +1,24 @@
 # Parmesan
 
-This is a extension for the Gouda api, designed for myanonmouse users.
+This is an extension for the [Gouda api](https://github.com/RA341/gouda), designed for myanonmouse users.
+
+## Installing
+
+Note: Currently, the extension is not published to the extension stores, and is only compatible with chromium based browsers.
+
+1. Download the zip from https://github.com/RA341/gouda/releases/latest
+2. Unzip the downloaded file, it will contain a single directory named source.
+3. Open your browser, in the extensions tab, on the top right side corner enable developer mode
+	* ![img.png](media/img.png)
+4. Next click on the load unpacked button and select the folder you unzip and select the source folder
+5. The extension should now be loaded, with the icon
+	* ![icon.png](source/icon.png)
+6. Click it, and enter your api instance url and apikey
+7. You are now good to go!!
+8. Go to any book release on the site, and you should have this button near the download button.
+ 	* ![img.png](media/img_2.png)
+
+
 
 ## Troubleshooting
 
