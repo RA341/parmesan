@@ -29,7 +29,7 @@ async function sendInfo(apikey, url) {
 		body: body
 	};
 
-	const resp = await fetch(`${url}/torrent/addTorrent`, options)
+	const resp = await fetch(`${url}/api/torrent/addTorrent`, options)
 	if (resp.status > 399) {
 		throw new Error(`Failed to call api. Status:${resp.statusText}, message: ${JSON.stringify(await resp.json())}`);
 	}
@@ -110,7 +110,7 @@ async function createDropDown(baseUrl, apikey) {
 			Authorization: apikey
 		},
 	};
-	const resp = await fetch(`${baseUrl}/category/list`, options)
+	const resp = await fetch(`${baseUrl}/api/category/list`, options)
 	if (resp.status > 400) {
 		throw new Error(`Failed to call api. Status:${resp.statusText}, message: ${resp.statusText}`);
 	}
