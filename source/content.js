@@ -7,7 +7,7 @@ async function sendInfo(apikey, url) {
 	const author = getAuthorText() ?? ""
 	const bookName = getTitleText() ?? ""
 	const link = getDownloadLink() ?? ""
-	const book_url = window.location.href
+	const book_url = parseInt((window.location.href).split('/').pop());
 	const cat = document.getElementById('gouda_cat').value;
 
 	console.log(`Category: ${cat} - Author: ${author} - Book: ${bookName}`);
@@ -17,7 +17,7 @@ async function sendInfo(apikey, url) {
 		author: author,
 		book: bookName,
 		category: cat,
-		mam_url: book_url
+		mam_book_id: book_url
 	})
 
 	const options = {
@@ -115,7 +115,7 @@ async function createDropDown(baseUrl, apikey) {
 		throw new Error(`Failed to call api. Status:${resp.statusText}, message: ${resp.statusText}`);
 	}
 
-	const cat = (await resp.json())['categories']
+	const cat = await resp.json()
 
 	const defaultOption = document.createElement('option');
 	defaultOption.value = '';
@@ -134,13 +134,13 @@ async function createDropDown(baseUrl, apikey) {
 	// Add options from API response
 	cat.forEach(item => {
 		const option = document.createElement('option');
-		option.value = item.value || item.id || item;
-		option.textContent = item.label || item.name || item;
+		option.value = item.ID;
+		option.textContent = item.category;
 		dropdown.appendChild(option);
 	});
 
 	if (cat[0]) {
-		dropdown.value = cat[0];
+		dropdown.value = cat[0].ID;
 	}
 
 	return dropdown;
