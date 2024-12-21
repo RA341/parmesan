@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/RA341/parmesan/compare/v1.1.0...v1.1.1) (2024-12-21)
+
+
+### Bug Fixes
+
+* incorrect category being passed to api ([07bca39](https://github.com/RA341/parmesan/commit/07bca3963735be2d4d3fc3a24314fd822823e1c7))
+
 # [1.1.0](https://github.com/RA341/parmesan/compare/v1.0.1...v1.1.0) (2024-12-20)
 
 
