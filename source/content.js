@@ -134,13 +134,13 @@ async function createDropDown(baseUrl, apikey) {
 	// Add options from API response
 	cat.forEach(item => {
 		const option = document.createElement('option');
-		option.value = item.ID;
+		option.value = item.category;
 		option.textContent = item.category;
 		dropdown.appendChild(option);
 	});
 
 	if (cat[0]) {
-		dropdown.value = cat[0].ID;
+		dropdown.value = cat[0].category;
 	}
 
 	return dropdown;
