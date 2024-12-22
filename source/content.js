@@ -4,8 +4,8 @@ const browserAPI = chrome || browser;
 
 async function sendInfo(apikey, url) {
 	console.log('Sending ');
-	const author = getAuthorText() ?? ""
-	const bookName = getTitleText() ?? ""
+	const author = getAuthorText() ?? "default"
+	const bookName = getTitleText() ?? "default"
 	const link = getDownloadLink() ?? ""
 	const book_url = parseInt((window.location.href).split('/').pop());
 	const cat = document.getElementById('gouda_cat').value;
@@ -62,7 +62,7 @@ function getDownloadLink() {
 	return null;
 }
 
-function updateButtonState(button, state, duration = 2000) {
+function updateButtonState(button, state, duration = 1000) {
 	// Store the previous state
 	const previousState = {
 		text: button.textContent,
@@ -165,28 +165,28 @@ async function init() {
 	controlsContainer.style.gap = '10px';
 	controlsContainer.style.alignItems = 'center';
 
-	const downloadLink = document.createElement('a');
-	downloadLink.id = 'tddl';
-	downloadLink.title = 'Gouda'
-	downloadLink.className = 'torFormButton';
-	downloadLink.title = 'Send to gouda';
-	downloadLink.textContent = 'Parmesan is not setup';
-	downloadLink.style.backgroundColor = 'grey';  // Only the button is green
-	downloadLink.style.color = 'white';  // White text for contra
+	const goudaButton = document.createElement('a');
+	goudaButton.id = 'tddl';
+	goudaButton.title = 'Gouda'
+	goudaButton.className = 'torFormButton';
+	goudaButton.title = 'Send to gouda';
+	goudaButton.textContent = 'Parmesan is not setup';
+	goudaButton.style.backgroundColor = 'grey';  // Only the button is green
+	goudaButton.style.color = 'white';  // White text for contra
 
 	if (settings.gouda_baseurl && settings.gouda_apikey) {
-		downloadLink.textContent = 'Send to gouda';
-		downloadLink.style.backgroundColor = 'green';  // Only the button is green
-		downloadLink.style.color = 'white';  // White text for contra
-		downloadLink.onclick = async (ev) => {
+		goudaButton.textContent = 'Send to gouda';
+		goudaButton.style.backgroundColor = 'green';  // Only the button is green
+		goudaButton.style.color = 'white';  // White text for contra
+		goudaButton.onclick = async (ev) => {
 			try {
 				ev.preventDefault();
 				await sendInfo(settings.gouda_apikey, settings.gouda_baseurl);
-				updateButtonState(downloadLink, buttonStates.success);
+				updateButtonState(goudaButton, buttonStates.success);
 			} catch (error) {
 				console.log(error)
 				alert(`Failed to send to gouda, check your apikey and url in settings: ${error}`)
-				updateButtonState(downloadLink, buttonStates.failure);
+				updateButtonState(goudaButton, buttonStates.failure);
 			}
 		};
 
@@ -197,7 +197,7 @@ async function init() {
 	}
 
 	// Add elements to the container
-	controlsContainer.appendChild(downloadLink);
+	controlsContainer.appendChild(goudaButton);
 
 	// Add the controls container to your existing structure
 	innerBottom.appendChild(controlsContainer);
@@ -213,4 +213,9 @@ async function init() {
 	}
 }
 
-init();
+init().then(r => {
+	console.log('Extension initialized...');
+}).catch(e => {
+	console.error('Unable to start extension')
+	console.error(e);
+});

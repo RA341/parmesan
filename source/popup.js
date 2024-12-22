@@ -24,21 +24,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 		console.debug(`Checking url ${baseUrl} with apikey ${apikey}`);
 
 		try {
-			await fetch(`${baseUrl}/auth/test`, {
-				method: 'GET',
-				headers: {
+			const resp = await fetch(`${baseUrl}/auth/test`, {
+				method: 'GET', headers: {
 					Authorization: apikey
 				}
 			})
 
+			if (!resp.ok) throw Error(`Invalid token: ${resp.status}`);
+
 			await browserAPI.storage.sync.set({
-				'gouda_baseurl': baseUrl,
-				'gouda_apikey': apikey
+				'gouda_baseurl': baseUrl, 'gouda_apikey': apikey
 			});
 
 			// Optional: Show save confirmation
 			alert('Settings saved!');
-
 		} catch (e) {
 			console.log(e)
 			alert(e)

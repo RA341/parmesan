@@ -50,6 +50,9 @@ jobs:
       id: tagName
       uses: "WyriHaximus/github-action-get-previous-tag@v1"
 
+    - name: update extension version
+      run: npx dot-json@1 "source/manifest.json" version "${{ steps.tagName.outputs.tag }}"
+
     - name: package ext
       run: |
         zip -r parmesan_${{ steps.tagName.outputs.tag }}.zip ./source
